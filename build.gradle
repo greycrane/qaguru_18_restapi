@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'io.qameta.allure' version '2.10.0'
+    id 'io.qameta.allure' version '2.11.2'
     id "io.freefair.lombok" version "6.5.1"
 }
 
@@ -36,7 +36,6 @@ compileTestJava {
 dependencies {
     testImplementation(
             'org.junit.jupiter:junit-jupiter:5.9.2',
-            'io.rest-assured:rest-assured:5.3.0',
             'io.qameta.allure:allure-selenide:2.21.0',
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "io.rest-assured:json-schema-validator:$restAssuredVersion",
