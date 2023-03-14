@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'io.qameta.allure' version '2.10.0'
+    id "io.freefair.lombok" version "6.5.1"
 }
 
 group 'org.example'
@@ -9,6 +11,24 @@ repositories {
     mavenCentral()
 }
 
+def allureVersion = "2.19.0",
+    assertJVersion = "3.24.2",
+    restAssuredVersion = "5.3.0"
+
+allure {
+    report {
+        version.set("$allureVersion")
+    }
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            junit5 {
+                adapterVersion.set("$allureVersion")
+            }
+        }
+    }
+}
+
 compileTestJava {
     options.encoding = 'UTF-8'
 }
@@ -16,13 +36,23 @@ compileTestJava {
 dependencies {
     testImplementation(
             'org.junit.jupiter:junit-jupiter:5.9.2',
-            'com.codeborne:selenide:6.12.0',
-            'io.rest-assured:rest-assured:5.3.0'
+            'io.rest-assured:rest-assured:5.3.0',
+            'io.qameta.allure:allure-selenide:2.21.0',
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "io.rest-assured:json-schema-validator:$restAssuredVersion",
+            "io.qameta.allure:allure-rest-assured:$allureVersion",
+            "org.assertj:assertj-core:$assertJVersion"
     )
 }
 
 tasks.withType(Test) {
     systemProperties(System.getProperties())
+}
+
+task api_tests(type: Test) {
+    useJUnitPlatform{
+        includeTags("api")
+    }
 }
 
 test {
