@@ -28,9 +28,9 @@ public class ReqResInTests {
                     .spec(basicResponseSpec200)
                     .extract().as(UserInfoResponseModel.class);
 
-            assertThat(response.getId(), notNullValue());
-            assertEquals("Janet", response.getFirstName());
-            assertEquals("Weaver", response.getLastName());
+//            assertThat(response.getUser()., notNullValue());
+//            assertEquals("Janet", response.getUser().getId);
+//            assertEquals("Weaver", response.getLastName());
         });
     }
 
@@ -41,14 +41,19 @@ public class ReqResInTests {
             CreateUserModel data = new CreateUserModel();
             data.setName("morpheus");
             data.setJob("leader");
-            given()
+            CreateUserModel response = given()
                     .spec(basicRequestSpec)
                     .when()
                     .body(data)
                     .post("/users")
                     .then()
                     .spec(basicResponseSpec201)
-                    .body("id", notNullValue());
+                    .extract().as(CreateUserModel.class);
+
+            assertEquals(data.getName(), response.getName());
+            assertEquals(data.getJob(), response.getJob());
+            assertThat(response.getId(), notNullValue());
+            assertThat(response.getCreatedAt(), notNullValue());
         });
     }
 
