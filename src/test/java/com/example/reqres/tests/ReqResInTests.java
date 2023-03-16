@@ -1,7 +1,6 @@
 package com.example.reqres.tests;
 
-import com.example.reqres.models.CreateUserModel;
-import com.example.reqres.models.UserInfoResponseModel;
+import com.example.reqres.models.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,30 +27,30 @@ public class ReqResInTests {
                     .spec(basicResponseSpec200)
                     .extract().as(UserInfoResponseModel.class);
 
-//            assertThat(response.getUser()., notNullValue());
-//            assertEquals("Janet", response.getUser().getId);
-//            assertEquals("Weaver", response.getLastName());
+            assertThat(response.getData().getId(), notNullValue());
+            assertEquals("Janet", response.getData().getFirstName());
+            assertEquals("Weaver", response.getData().getLastName());
         });
     }
 
     @Test
     @DisplayName("Проверка существования id для созданного пользователя")
     void checkCreatedUserIdIsNotNull() {
-        step("Запрос информации о пользвателе с id=2", () -> {
-            CreateUserModel data = new CreateUserModel();
-            data.setName("morpheus");
-            data.setJob("leader");
+        step("Проверка существования id для созданного пользователя", () -> {
+            CreateUserModel request = new CreateUserModel();
+            request.setName("morpheus");
+            request.setJob("leader");
             CreateUserModel response = given()
                     .spec(basicRequestSpec)
                     .when()
-                    .body(data)
+                    .body(request)
                     .post("/users")
                     .then()
                     .spec(basicResponseSpec201)
                     .extract().as(CreateUserModel.class);
 
-            assertEquals(data.getName(), response.getName());
-            assertEquals(data.getJob(), response.getJob());
+            assertEquals(request.getName(), response.getName());
+            assertEquals(request.getJob(), response.getJob());
             assertThat(response.getId(), notNullValue());
             assertThat(response.getCreatedAt(), notNullValue());
         });
@@ -60,40 +59,50 @@ public class ReqResInTests {
     @Test
     @DisplayName("Проверка отложенного запроса")
     void checkDelayedResponse() {
-        step("Запрос информации о пользвателе с id=2", () -> {
-            given()
+        step("Проверка отложенного запроса", () -> {
+            UsersListModel response = given()
                     .spec(basicRequestSpec)
                     .param("delay", 3)
                     .when()
                     .get("/users")
                     .then()
                     .spec(basicResponseSpec200)
-                    .body("data[0].id", is(1))
-                    .body("data[0]", hasEntry("email", "george.bluth@reqres.in"));
+                    .extract().as(UsersListModel.class);
+
+            assertEquals(1, response.getData().get(0).getId());
+            assertEquals("george.bluth@reqres.in", response.getData().get(0).getEmail());
         });
     }
 
     @Test
     @DisplayName("Попытка регистрации пользователя без username и email")
     void checkUserRegisterNegative() {
-        String data = "{\"password\": \"pistol\" }";
+        step("Проверка отложенного запроса", () -> {
+            RegisterUserRequestModel request = new RegisterUserRequestModel();
+            request.setPassword("pistol");
+            RegisterUserNegativeResponseModel response = given()
+                    .spec(basicRequestSpec)
+                    .body(request)
+                    .when()
+                    .post("/register")
+                    .then()
+                    .spec(basicResponseSpec400)
+                    .extract().as(RegisterUserNegativeResponseModel.class);
 
-        given()
-                .body(data)
-                .when()
-                .log().uri()
-                .log().body()
-                .post("https://reqres.in/api/register")
-                .then()
-                .log().body()
-                .statusCode(400);
+            assertThat(response.getError(), containsString("Missing email or username"));
+        });
     }
 
     @Test
     @DisplayName("Проверка удаления пользователя")
     void checkDeleteUser() {
-        delete("https://reqres.in/api/users/2")
-                .then()
-                .statusCode(204);
+        step("Проверка удаления пользователя", () -> {
+            given()
+                    .spec(basicRequestSpec)
+                    .when()
+                    .delete("/users/2")
+                    .then()
+                    .spec(basicResponseSpec204);
+        });
     }
 }

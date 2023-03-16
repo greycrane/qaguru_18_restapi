@@ -33,10 +33,9 @@ dependencies {
     testImplementation(
             'org.junit.jupiter:junit-jupiter:5.9.2',
             "io.rest-assured:rest-assured:5.3.0",
-            "io.rest-assured:json-schema-validator:5.3.0",
             "io.qameta.allure:allure-rest-assured:2.21.0",
             "org.assertj:assertj-core:3.24.2",
-            'org.freemarker:freemarker:2.3.19'
+            'com.fasterxml.jackson.core:jackson-databind:2.13.5',
     )
 }
 
