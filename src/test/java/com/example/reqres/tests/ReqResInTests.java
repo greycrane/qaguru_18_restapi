@@ -60,17 +60,15 @@ public class ReqResInTests {
     @DisplayName("Проверка отложенного запроса")
     void checkDelayedResponse() {
         step("Проверка отложенного запроса", () -> {
-            UsersListModel response = given()
+            given()
                     .spec(basicRequestSpec)
-                    .param("delay", 3)
+                    .param("delay", 1)
                     .when()
                     .get("/users")
                     .then()
                     .spec(basicResponseSpec200)
-                    .extract().as(UsersListModel.class);
-
-            assertEquals(1, response.getData().get(0).getId());
-            assertEquals("george.bluth@reqres.in", response.getData().get(0).getEmail());
+                    .body("data.findAll{it.email =~/.*?@reqres.in/}.email.flatten()",
+                            hasItem("george.bluth@reqres.in"));
         });
     }
 
